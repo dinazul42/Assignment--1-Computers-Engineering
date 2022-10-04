@@ -1,0 +1,45 @@
+#include <msp430xG46x.h>    
+
+          ORG 1100h
+id1         DW    0,8,4,1,4,8,5,4
+id2         DW    1,8,4,9,2,6,6,7
+size        DW    9
+
+
+         
+          RSEG   CSTACK           ; defines stack segment of 80 words (default)
+          RSEG   CODE             ; ORG   0x3100 - place program in 'CODE' segment in to Flash memory
+             
+Main      CLR R4
+          PUSH  size              
+          PUSH  #id1
+          PUSH  #id2
+          CALL  #COMP1
+          
+Jump      JMP Jump          ; end code
+          
+
+
+COMP1     ADD #2,SP
+          POP R7
+          POP R6
+          POP R5
+STG1      CLR R9
+          CLR R8
+          MOV @R6+,R8
+          MOV @R7+,R9
+          XOR R9,R8
+          ADD R8,R4
+          DEC R5
+          JNZ STG1
+          SUB #8,SP
+          RET
+                 
+                           
+;-------------------------------------------------------------------------------
+          COMMON  INTVEC                  ; Interrupt Vectors
+;-------------------------------------------------------------------------------
+          ORG     RESET_VECTOR            ; POR, ext. Reset
+          DW      Main
+          END
+
